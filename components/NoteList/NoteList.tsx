@@ -1,4 +1,5 @@
 // NoteList.tsx
+'use client';
 import css from "./NoteList.module.css";
 import type { Note } from "../../types/note";
 import { deleteNote } from "../../lib/api";

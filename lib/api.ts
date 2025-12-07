@@ -9,14 +9,24 @@ export interface NotesResponse {
   totalPages: number;
 }
 
+export type Category = {
+  id: string;
+  name: string;
+  description: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
 // Дані, які ми відправляємо при створенні нотатки без id, createAt, updatedAt
 export type CreateNotePayload = Omit<Note, "id" | "createdAt" | "updatedAt">;
 
 // 1. Отримати список нотаток (пошук + пагінація)
+
 export const fetchNotes = async (
   searchPost: string,
   page: number,
-  perPage: number = 12
+  perPage: number = 12,
+  tag?: string               // ⬅️ було categoryId, міняємо на tag
 ): Promise<NotesResponse> => {
   const res = await axios.get<NotesResponse>(
     "https://notehub-public.goit.study/api/notes",
@@ -25,6 +35,7 @@ export const fetchNotes = async (
         search: searchPost,
         page,
         perPage,
+        tag,                 // ⬅️ тут теж міняємо ключ запиту
       },
       headers: {
         Authorization: `Bearer ${process.env.NEXT_PUBLIC_NOTEHUB_TOKEN}`,
@@ -80,3 +91,10 @@ export const fetchNoteById = async (id: string): Promise<Note> => {
 
   return res.data;
 };
+
+
+export const getCategories = async () => {
+  const res = await axios<Category[]>('https://notehub-public.goit.study/api/notes/categories');
+  return res.data;
+};
+
