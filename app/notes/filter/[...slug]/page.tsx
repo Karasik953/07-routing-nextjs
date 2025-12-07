@@ -1,7 +1,5 @@
-// app/notes/filter/[...slug]/page.tsx
-
 import { fetchNotes } from "@/lib/api";
-import NoteList from "@/components/NoteList/NoteList";
+import NotesClient from "./Notes.client";
 
 type Props = {
   params: Promise<{ slug: string[] }>;
@@ -10,19 +8,20 @@ type Props = {
 const NotesByTag = async ({ params }: Props) => {
   const { slug } = await params;
 
-  // перший сегмент після /notes/filter/
+  // отримуємо тег з URL
   const tagFromUrl = slug[0];
 
-  // якщо all → тег бекенду не передаємо
+  // якщо all → тег не передаємо
   const tag = tagFromUrl === "all" ? undefined : tagFromUrl;
 
+  // перша сторінка, 12 нотаток, тег
   const response = await fetchNotes("", 1, 12, tag);
 
   return (
     <div>
       <h1>Notes list</h1>
       {response.notes.length > 0 ? (
-        <NoteList notes={response.notes} />
+        <NotesClient notes={response.notes} />
       ) : (
         <p>No notes found</p>
       )}
