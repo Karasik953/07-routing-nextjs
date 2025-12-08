@@ -1,4 +1,7 @@
+// app/notes/filter/[...slug]/page.tsx
+
 import { fetchNotes } from "@/lib/api";
+import { HydrationBoundary, QueryClient, dehydrate } from "@tanstack/react-query";
 import NotesClient from "./Notes.client";
 
 type Props = {
@@ -8,23 +11,26 @@ type Props = {
 const NotesByTag = async ({ params }: Props) => {
   const { slug } = await params;
 
-  // отримуємо тег з URL
   const tagFromUrl = slug[0];
-
-  // якщо all → тег не передаємо
   const tag = tagFromUrl === "all" ? undefined : tagFromUrl;
 
-  // перша сторінка, 12 нотаток, тег
-  const response = await fetchNotes("", 1, 12, tag);
+  const search = "";
+  const page = 1;
+  const perPage = 12;
+
+  const queryClient = new QueryClient();
+
+  await queryClient.prefetchQuery({
+    queryKey: ["notes", { tag, search, page, perPage }],
+    queryFn: () => fetchNotes(search, page, perPage, tag),
+  });
 
   return (
     <div>
       <h1>Notes list</h1>
-      {response.notes.length > 0 ? (
-        <NotesClient notes={response.notes} />
-      ) : (
-        <p>No notes found</p>
-      )}
+      <HydrationBoundary state={dehydrate(queryClient)}>
+        <NotesClient tag={tag} />
+      </HydrationBoundary>
     </div>
   );
 };
